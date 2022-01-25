@@ -1,0 +1,134 @@
+.main {
+  padding: 0 3.125rem 8rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.gallery-wrapper {
+  margin-right: auto;
+  display: flex;
+}
+
+.all-images-wrapper {
+  width: 15rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-right: 2rem;
+}
+
+.image {
+  width: 15rem;
+  cursor: pointer;
+}
+
+.selected-image {
+  width: 37.5rem;
+  align-self: flex-start;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 1.875rem;
+  margin-bottom: 1rem;
+  color: #1d1f22;
+}
+
+.name {
+  font-weight: 400;
+  font-size: 1.875rem;
+  margin-bottom: 2.75rem;
+  color: #1d1f22;
+}
+
+.attribute-name {
+  color: #1d1f22;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.attribute-values-wrapper {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+}
+.color-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  border: 0;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.selected-color-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  border: 1px solid #1d1f22;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.value-btn {
+  padding: 0.5rem;
+  color: #1d1f22;
+  border: 1px solid #1d1f22;
+  margin-right: 0.5rem;
+  background: #ffffff;
+}
+
+.selected-value-btn {
+  padding: 0.5rem;
+  color: #ffffff;
+  border: 1px solid transparent;
+  background: #1d1f22;
+  margin-right: 0.5rem;
+}
+
+.price-heading {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 0.625rem;
+  margin-top: 2.5rem;
+}
+
+.price {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.add-btn {
+  padding: 1rem 5.875rem;
+  background: #5ece7b;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  border: 0;
+  border-radius: 4px;
+}
+
+.remove-btn {
+  padding: 1rem 5.875rem;
+  background: #ff0000;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  border: 0;
+  border-radius: 4px;
+}
+
+.not-in-stock-text {
+  color: #1d1f22;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+}
+
+.desc-div {
+  font-weight: 500;
+  color: #1d1f22;
+}
