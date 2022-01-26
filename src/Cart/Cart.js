@@ -13,7 +13,7 @@ export class Cart extends Component {
         return attribute.attribute === currentAttribute.id;
       }
     );
-    console.log(index);
+
     if (
       item.id ===
       product.attributesObject.selectedAttributes[index].selectedValue

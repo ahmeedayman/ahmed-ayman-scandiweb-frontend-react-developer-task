@@ -128,7 +128,6 @@ export class PDP extends Component {
   };
 
   render() {
-    console.log(this.state);
     if (!this.state.product.name) {
       return <Spinner />;
     }
@@ -248,8 +247,6 @@ export class PDP extends Component {
       const res = await this.props.client.query({
         query: gql`query {product(id: "${id}") {id,name,inStock,gallery,description,category,attributes{id,name,type,items{displayValue,value,id}},prices{currency{label,symbol},amount},brand}}`,
       });
-
-      console.log(res);
 
       let attributesObject = {};
 

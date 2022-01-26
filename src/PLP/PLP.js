@@ -49,8 +49,6 @@ export class PLP extends Component {
           `,
     });
 
-    console.log(res);
-
     // Add each product to the state of the PLP component, then, for each product, adds a default value for each attribute
 
     res.data.category.products.forEach((product) => {
@@ -105,8 +103,6 @@ export class PLP extends Component {
     const pageY = window.scrollY;
     window.location.assign(`#`);
     window.scrollBy(0, pageY);
-
-    console.log(product);
   };
 
   //apply a class to only the selected attribute value
@@ -115,7 +111,7 @@ export class PLP extends Component {
     let attributeIndex = attributesList.findIndex((attributeDetails) => {
       return attributeDetails.attribute === currentAttribute.id;
     });
-    console.log(attributeIndex);
+
     if (attributeIndex !== -1) {
       if (item.id === attributesList[attributeIndex].selectedValue) {
         return true;
@@ -126,15 +122,12 @@ export class PLP extends Component {
   // reset attributes when clicking add to cart on a new product.
 
   resetAttributesHandler = (product) => {
-    console.log(product);
     this.setState({
       attributesList: [...product.attributesObject.selectedAttributes],
     });
-    console.log("attributesList", this.attributesList);
   };
 
   selectAttribute = (e) => {
-    console.log(this.state.attributesList);
     const index = this.state.attributesList.findIndex((attribute) => {
       return attribute.attribute === e.target.dataset.attributeId;
     });
@@ -252,7 +245,6 @@ export class PLP extends Component {
     if (!this.state.products.length > 0) {
       return <Spinner />;
     }
-    console.log(this.state);
 
     return (
       <main className={classes.main}>

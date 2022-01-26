@@ -27,7 +27,7 @@ export class NavBar extends Component {
         return attribute.attribute === currentAttribute.id;
       }
     );
-    console.log(index);
+
     if (
       item.id ===
       product.attributesObject.selectedAttributes[index].selectedValue
@@ -117,7 +117,6 @@ export class NavBar extends Component {
       e.target.dataset.label,
       e.target.dataset.symbol
     );
-    console.log(e.target.dataset.label, e.target.dataset.symbol);
   };
 
   //Change amount in cart
@@ -206,7 +205,7 @@ export class NavBar extends Component {
     if (!this.state.categories.length > 0) {
       return null;
     }
-    console.log(this.props.cart.products);
+
     return (
       <nav className={classes.nav}>
         <div className={classes["nav-link-wrapper"]}>
@@ -534,7 +533,7 @@ export class NavBar extends Component {
           }
         `,
       });
-      console.log(res);
+
       this.setState({
         categories: [...res.data.categories],
         currencies: [...res.data.currencies],

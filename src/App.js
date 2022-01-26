@@ -40,8 +40,6 @@ export class App extends Component {
   };
 
   render() {
-    console.log(this.state.cart);
-
     return (
       <Router>
         <div
