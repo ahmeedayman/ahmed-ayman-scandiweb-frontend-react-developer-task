@@ -53,6 +53,7 @@ export class PLP extends Component {
 
     res.data.category.products.forEach((product) => {
       let attributesObject = {};
+
       product.attributes.forEach((attribute) => {
         attributesObject = {
           // the ternary operator is necessary because selectedAttributes is undefined at first
@@ -73,6 +74,7 @@ export class PLP extends Component {
               ],
         };
       });
+
       this.setState({
         products: [
           ...this.state.products,
@@ -90,14 +92,14 @@ export class PLP extends Component {
 
   closePopup = (product) => {
     //reset selected values
-
-    this.state.attributesList.forEach((currentAttribute) => {
-      let attributeToUse = product.attributes.filter((attribute) => {
-        return attribute.id === currentAttribute.attribute;
-      })[0];
-      currentAttribute.selectedValue = attributeToUse.items[0].id;
-    });
-
+    if (this.state.attributesList.length > 0) {
+      this.state.attributesList.forEach((currentAttribute) => {
+        let attributeToUse = product.attributes.filter((attribute) => {
+          return attribute.id === currentAttribute.attribute;
+        })[0];
+        currentAttribute.selectedValue = attributeToUse.items[0].id;
+      });
+    }
     // prevent scrolling to the top of page
 
     const pageY = window.scrollY;
@@ -122,9 +124,13 @@ export class PLP extends Component {
   // reset attributes when clicking add to cart on a new product.
 
   resetAttributesHandler = (product) => {
-    this.setState({
-      attributesList: [...product.attributesObject.selectedAttributes],
-    });
+    product.attributesObject.selectedAttributes
+      ? this.setState({
+          attributesList: [...product.attributesObject.selectedAttributes],
+        })
+      : this.setState({
+          attributesList: [],
+        });
   };
 
   selectAttribute = (e) => {
@@ -157,7 +163,7 @@ export class PLP extends Component {
 
     setTimeout(() => {
       this.state.attributesList.forEach((attribute) => {
-        if (this.state.productToAdd.attributesObject) {
+        if (this.state.productToAdd.attributesObject.selectedAttributes) {
           this.state.productToAdd.attributesObject.selectedAttributes.forEach(
             (defaultAttribute, index) => {
               if (defaultAttribute.attribute === attribute.attribute) {
@@ -192,49 +198,83 @@ export class PLP extends Component {
       // if the product is already in cart and with same attributes, increase amount in cart
 
       setTimeout(() => {
-        const similarProductInCartIndex = this.props.cart.products.findIndex(
-          (cartProduct) => {
-            return (
-              cartProduct.id === this.state.productToAdd.id &&
-              this.state.productToAdd.attributesObject.selectedAttributes.every(
-                (selectedAttribute) => {
-                  return cartProduct.attributesObject.selectedAttributes.some(
-                    (cartSelectedAttribute) => {
-                      return (
-                        cartSelectedAttribute.attribute ===
-                          selectedAttribute.attribute &&
-                        cartSelectedAttribute.selectedValue ===
-                          selectedAttribute.selectedValue
-                      );
-                    }
-                  );
-                }
-              )
-            );
+        if (this.state.productToAdd.attributesObject.selectedAttributes) {
+          const similarProductInCartIndex = this.props.cart.products.findIndex(
+            (cartProduct) => {
+              return (
+                cartProduct.id === this.state.productToAdd.id &&
+                this.state.productToAdd.attributesObject.selectedAttributes.every(
+                  (selectedAttribute) => {
+                    return cartProduct.attributesObject.selectedAttributes.some(
+                      (cartSelectedAttribute) => {
+                        return (
+                          cartSelectedAttribute.attribute ===
+                            selectedAttribute.attribute &&
+                          cartSelectedAttribute.selectedValue ===
+                            selectedAttribute.selectedValue
+                        );
+                      }
+                    );
+                  }
+                )
+              );
+            }
+          );
+
+          if (similarProductInCartIndex !== -1) {
+            this.props.updateGlobalState({
+              cart: {
+                ...this.props.cart,
+                products: [
+                  ...this.props.cart.products.slice(
+                    0,
+                    similarProductInCartIndex
+                  ),
+                  {
+                    ...this.props.cart.products[similarProductInCartIndex],
+                    amount:
+                      this.props.cart.products[similarProductInCartIndex]
+                        .amount + 1,
+                  },
+                  ...this.props.cart.products.slice(
+                    similarProductInCartIndex + 1
+                  ),
+                ],
+              },
+            });
+            return this.closePopup(product);
           }
-        );
+        } else {
+          const similarProductInCartIndex = this.props.cart.products.findIndex(
+            (cartProduct) => {
+              return cartProduct.id === this.state.productToAdd.id;
+            }
+          );
 
-        if (similarProductInCartIndex !== -1) {
-          this.props.updateGlobalState({
-            cart: {
-              ...this.props.cart,
-              products: [
-                ...this.props.cart.products.slice(0, similarProductInCartIndex),
-                {
-                  ...this.props.cart.products[similarProductInCartIndex],
-                  amount:
-                    this.props.cart.products[similarProductInCartIndex].amount +
-                    1,
-                },
-                ...this.props.cart.products.slice(
-                  similarProductInCartIndex + 1
-                ),
-              ],
-            },
-          });
-          return this.closePopup(product);
+          if (similarProductInCartIndex !== -1) {
+            this.props.updateGlobalState({
+              cart: {
+                ...this.props.cart,
+                products: [
+                  ...this.props.cart.products.slice(
+                    0,
+                    similarProductInCartIndex
+                  ),
+                  {
+                    ...this.props.cart.products[similarProductInCartIndex],
+                    amount:
+                      this.props.cart.products[similarProductInCartIndex]
+                        .amount + 1,
+                  },
+                  ...this.props.cart.products.slice(
+                    similarProductInCartIndex + 1
+                  ),
+                ],
+              },
+            });
+            return this.closePopup(product);
+          }
         }
-
         // If not, add to cart.
 
         this.props.updateGlobalState({
@@ -302,7 +342,7 @@ export class PLP extends Component {
           {this.props.category.toUpperCase()}
         </h1>
         <div className={classes["products-wrapper"]}>
-          {this.state.products.map((product) => {
+          {this.state.products.map((product, index) => {
             //if not in stock, display a text on the product image.
             let inStockText = null;
             if (!product.inStock) {
@@ -356,7 +396,9 @@ export class PLP extends Component {
                     {product.attributes.map((attribute) => {
                       if (attribute.name === "Color") {
                         return (
-                          <React.Fragment key={attribute.id}>
+                          <React.Fragment
+                            key={`${attribute.id} ${product.id} ${index}`}
+                          >
                             <h3 className={classes["attribute-name"]}>
                               {attribute.name}:
                             </h3>
@@ -376,7 +418,7 @@ export class PLP extends Component {
                                         : classes["color-btn"]
                                     }
                                     style={{ background: item.value }}
-                                    key={item.id}
+                                    key={`${attribute.id} ${product.id} ${index} ${item.id}`}
                                     data-id={item.id}
                                     data-attribute-id={attribute.id}
                                     onClick={(e) => {
@@ -390,7 +432,9 @@ export class PLP extends Component {
                         );
                       }
                       return (
-                        <React.Fragment key={attribute.id}>
+                        <React.Fragment
+                          key={`${attribute.id} ${product.id} ${index}`}
+                        >
                           <h3 className={classes["attribute-name"]}>
                             {attribute.name}:
                           </h3>
@@ -407,7 +451,7 @@ export class PLP extends Component {
                                       ? classes["selected-value-btn"]
                                       : classes["value-btn"]
                                   }
-                                  key={item.id}
+                                  key={`${attribute.id} ${product.id} ${index} ${item.id}`}
                                   data-id={item.id}
                                   data-attribute-id={attribute.id}
                                   onClick={(e) => {

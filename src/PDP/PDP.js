@@ -193,7 +193,9 @@ export class PDP extends Component {
           {this.state.product.attributes.map((attribute) => {
             if (attribute.name === "Color") {
               return (
-                <React.Fragment key={attribute.id}>
+                <React.Fragment
+                  key={`${attribute.id} ${this.state.product.id}`}
+                >
                   <h3 className={classes["attribute-name"]}>
                     {attribute.name}:
                   </h3>
@@ -207,7 +209,7 @@ export class PDP extends Component {
                               ? classes["selected-color-btn"]
                               : classes["color-btn"]
                           }
-                          key={item.id}
+                          key={`${attribute.id} ${this.state.product.id} ${item.id}`}
                           data-id={item.id}
                           data-attribute-id={attribute.id}
                           onClick={(e) => {
@@ -221,13 +223,13 @@ export class PDP extends Component {
               );
             }
             return (
-              <React.Fragment key={attribute.id}>
+              <React.Fragment key={`${attribute.id} ${this.state.product.id}`}>
                 <h3 className={classes["attribute-name"]}>{attribute.name}:</h3>
                 <div className={classes["attribute-values-wrapper"]}>
                   {attribute.items.map((item) => {
                     return (
                       <button
-                        key={item.id}
+                        key={`${attribute.id} ${this.state.product.id} ${item.id}`}
                         className={
                           this.selectedAttributeStyle(item.id, attribute)
                             ? classes["selected-value-btn"]
