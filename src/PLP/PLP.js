@@ -8,7 +8,7 @@ import classes from "./PLP.module.css";
 import cartSVG from "../Images/Cart2.svg";
 
 export class PLP extends Component {
-  state = { products: [], attributesList: [] };
+  state = { products: [], attributesList: [], productToAdd: {} };
 
   //Fetch products depending on category
 
@@ -145,34 +145,111 @@ export class PLP extends Component {
   };
 
   addProductToCart = (e, product) => {
-    const productToAdd = this.state.products.filter((product) => {
-      return product.id === e.target.dataset.productId;
-    })[0];
-
-    //Check the attributes that were changed, and if they exist, change them.
-
-    this.state.attributesList.forEach((attribute) => {
-      if (productToAdd.attributesObject.selectedAttributes) {
-        productToAdd.attributesObject.selectedAttributes.forEach(
-          (defaultAttribute) => {
-            if (defaultAttribute.attribute === attribute.attribute) {
-              defaultAttribute.selectedValue = attribute.selectedValue;
-            }
-          }
-        );
-      }
-    });
-
-    // add to cart.
-
-    this.props.updateGlobalState({
-      cart: {
-        ...this.props.cart,
-        products: [...this.props.cart.products, { ...productToAdd, amount: 1 }],
+    this.setState({
+      productToAdd: {
+        ...this.state.products.filter((product) => {
+          return product.id === e.target.dataset.productId;
+        })[0],
       },
     });
 
-    this.closePopup(product);
+    //Check the attributes that were changed, and if they exist, change them.
+
+    setTimeout(() => {
+      this.state.attributesList.forEach((attribute) => {
+        if (this.state.productToAdd.attributesObject) {
+          this.state.productToAdd.attributesObject.selectedAttributes.forEach(
+            (defaultAttribute, index) => {
+              if (defaultAttribute.attribute === attribute.attribute) {
+                // defaultAttribute.selectedValue = attribute.selectedValue;
+                this.setState({
+                  productToAdd: {
+                    ...this.state.productToAdd,
+                    attributesObject: {
+                      selectedAttributes: [
+                        ...this.state.productToAdd.attributesObject.selectedAttributes.slice(
+                          0,
+                          index
+                        ),
+                        {
+                          ...this.state.productToAdd.attributesObject
+                            .selectedAttributes[index],
+                          selectedValue: attribute.selectedValue,
+                        },
+                        ...this.state.productToAdd.attributesObject.selectedAttributes.slice(
+                          index + 1
+                        ),
+                      ],
+                    },
+                  },
+                });
+              }
+            }
+          );
+        }
+      });
+
+      // if the product is already in cart and with same attributes, increase amount in cart
+
+      setTimeout(() => {
+        const similarProductInCartIndex = this.props.cart.products.findIndex(
+          (cartProduct) => {
+            return (
+              cartProduct.id === this.state.productToAdd.id &&
+              this.state.productToAdd.attributesObject.selectedAttributes.every(
+                (selectedAttribute) => {
+                  return cartProduct.attributesObject.selectedAttributes.some(
+                    (cartSelectedAttribute) => {
+                      return (
+                        cartSelectedAttribute.attribute ===
+                          selectedAttribute.attribute &&
+                        cartSelectedAttribute.selectedValue ===
+                          selectedAttribute.selectedValue
+                      );
+                    }
+                  );
+                }
+              )
+            );
+          }
+        );
+
+        if (similarProductInCartIndex !== -1) {
+          this.props.updateGlobalState({
+            cart: {
+              ...this.props.cart,
+              products: [
+                ...this.props.cart.products.slice(0, similarProductInCartIndex),
+                {
+                  ...this.props.cart.products[similarProductInCartIndex],
+                  amount:
+                    this.props.cart.products[similarProductInCartIndex].amount +
+                    1,
+                },
+                ...this.props.cart.products.slice(
+                  similarProductInCartIndex + 1
+                ),
+              ],
+            },
+          });
+          return this.closePopup(product);
+        }
+
+        // If not, add to cart.
+
+        this.props.updateGlobalState({
+          cart: {
+            ...this.props.cart,
+            products: [
+              ...this.props.cart.products,
+              { ...this.state.productToAdd, amount: 1 },
+            ],
+          },
+        });
+
+        this.closePopup(product);
+      }, 0);
+    }, 0);
   };
 
   // the following functions check whether the product is already in the cart or if it's not in stock.
@@ -180,47 +257,20 @@ export class PLP extends Component {
   // if not in stock, return a button that doesn't allow to add to cart.
 
   removeFromCartHandler = (e) => {
-    const index = this.props.cart.products.findIndex((product) => {
-      return product.id === e.target.dataset.id;
+    const unremovedProducts = this.props.cart.products.filter((product) => {
+      return product.id !== e.target.dataset.id;
     });
 
     this.props.updateGlobalState({
       cart: {
         ...this.props.cart,
-        products: [
-          ...this.props.cart.products.slice(0, index),
-          ...this.props.cart.products.slice(index + 1),
-        ],
+        products: [...unremovedProducts],
       },
     });
   };
 
-  checkIfInCart = (product) => {
-    if (
-      this.props.cart.products.some((item) => {
-        return item.id === product.id;
-      })
-    ) {
-      return (
-        <button
-          className={classes["remove-btn"]}
-          onClick={(e) => {
-            this.removeFromCartHandler(e);
-          }}
-          data-id={product.id}
-        >
-          {" "}
-          <img
-            src={cartSVG}
-            alt=""
-            onClick={(e) => {
-              this.removeFromCartHandler(e);
-            }}
-            data-id={product.id}
-          />
-        </button>
-      );
-    } else if (!product.inStock) {
+  checkIfInStock = (product) => {
+    if (!product.inStock) {
       return (
         <button className={classes["not-in-stock-btn"]}>
           <img src={cartSVG} alt="" />
@@ -284,7 +334,7 @@ export class PLP extends Component {
                     />{" "}
                     {inStockText}
                   </Link>
-                  {this.checkIfInCart(product)}
+                  {this.checkIfInStock(product)}
                 </div>
 
                 <Link

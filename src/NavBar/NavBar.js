@@ -122,11 +122,7 @@ export class NavBar extends Component {
   //Change amount in cart
 
   //Get product index in cart and update it
-  updateAmount = (newAmount, productId) => {
-    const index = this.props.cart.products.findIndex((product) => {
-      return product.id === productId;
-    });
-
+  updateAmount = (newAmount, productId, productIndex) => {
     // remove from cart if the new amount is 0
 
     if (newAmount === 0) {
@@ -134,9 +130,9 @@ export class NavBar extends Component {
         cart: {
           ...this.props.cart,
           products: [
-            ...this.props.cart.products.slice(0, index),
+            ...this.props.cart.products.slice(0, +productIndex),
 
-            ...this.props.cart.products.slice(index + 1),
+            ...this.props.cart.products.slice(+productIndex + 1),
           ],
         },
       });
@@ -145,10 +141,10 @@ export class NavBar extends Component {
       cart: {
         ...this.props.cart,
         products: [
-          ...this.props.cart.products.slice(0, index),
-          { ...this.props.cart.products[index], amount: newAmount },
+          ...this.props.cart.products.slice(0, +productIndex),
+          { ...this.props.cart.products[+productIndex], amount: newAmount },
 
-          ...this.props.cart.products.slice(index + 1),
+          ...this.props.cart.products.slice(+productIndex + 1),
         ],
       },
     });
@@ -156,12 +152,12 @@ export class NavBar extends Component {
 
   increaseAmountHandler = (e) => {
     const amount = +e.target.dataset.amount + 1;
-    this.updateAmount(amount, e.target.dataset.id);
+    this.updateAmount(amount, e.target.dataset.id, e.target.dataset.index);
   };
 
   decreaseAmountHandler = (e) => {
     const amount = +e.target.dataset.amount - 1;
-    this.updateAmount(amount, e.target.dataset.id);
+    this.updateAmount(amount, e.target.dataset.id, e.target.dataset.index);
   };
 
   //change displayed image
@@ -311,10 +307,10 @@ export class NavBar extends Component {
                       {this.setTotalItems(this.props.cart.products)} items
                     </span>
                   </p>
-                  {this.props.cart.products.map((product) => {
+                  {this.props.cart.products.map((product, index) => {
                     return (
                       <div
-                        key={product.id}
+                        key={`${product.id} ${index}`}
                         className={classes["product-wrapper"]}
                       >
                         <div className={classes["details-div"]}>
@@ -395,6 +391,7 @@ export class NavBar extends Component {
                             className={classes["amount-btn"]}
                             data-id={product.id}
                             data-amount={product.amount}
+                            data-index={index}
                             onClick={(e) => {
                               this.increaseAmountHandler(e);
                             }}
@@ -406,6 +403,7 @@ export class NavBar extends Component {
                             className={classes["amount-btn"]}
                             data-id={product.id}
                             data-amount={product.amount}
+                            data-index={index}
                             onClick={(e) => {
                               this.decreaseAmountHandler(e);
                             }}

@@ -58,11 +58,7 @@ export class Cart extends Component {
   //Change amount in cart
 
   //Get product index in cart and update it
-  updateAmount = (newAmount, productId) => {
-    const index = this.props.cart.products.findIndex((product) => {
-      return product.id === productId;
-    });
-
+  updateAmount = (newAmount, productId, productIndex) => {
     // remove from cart if the new amount is 0
 
     if (newAmount === 0) {
@@ -70,9 +66,9 @@ export class Cart extends Component {
         cart: {
           ...this.props.cart,
           products: [
-            ...this.props.cart.products.slice(0, index),
+            ...this.props.cart.products.slice(0, +productIndex),
 
-            ...this.props.cart.products.slice(index + 1),
+            ...this.props.cart.products.slice(+productIndex + 1),
           ],
         },
       });
@@ -81,10 +77,10 @@ export class Cart extends Component {
       cart: {
         ...this.props.cart,
         products: [
-          ...this.props.cart.products.slice(0, index),
-          { ...this.props.cart.products[index], amount: newAmount },
+          ...this.props.cart.products.slice(0, +productIndex),
+          { ...this.props.cart.products[+productIndex], amount: newAmount },
 
-          ...this.props.cart.products.slice(index + 1),
+          ...this.props.cart.products.slice(+productIndex + 1),
         ],
       },
     });
@@ -92,12 +88,12 @@ export class Cart extends Component {
 
   increaseAmountHandler = (e) => {
     const amount = +e.target.dataset.amount + 1;
-    this.updateAmount(amount, e.target.dataset.id);
+    this.updateAmount(amount, e.target.dataset.id, e.target.dataset.index);
   };
 
   decreaseAmountHandler = (e) => {
     const amount = +e.target.dataset.amount - 1;
-    this.updateAmount(amount, e.target.dataset.id);
+    this.updateAmount(amount, e.target.dataset.id, e.target.dataset.index);
   };
 
   //change displayed image
@@ -151,9 +147,12 @@ export class Cart extends Component {
           {this.props.cart.products.length > 0 ? (
             <React.Fragment>
               {" "}
-              {this.props.cart.products.map((product) => {
+              {this.props.cart.products.map((product, index) => {
                 return (
-                  <div className={classes["product-wrapper"]} key={product.id}>
+                  <div
+                    className={classes["product-wrapper"]}
+                    key={`${product.id} ${index}`}
+                  >
                     <div className={classes["details-wrapper"]}>
                       <Link
                         className={classes["to-product"]}
@@ -224,9 +223,10 @@ export class Cart extends Component {
                       <button
                         className={classes["amount-btn"]}
                         data-id={product.id}
+                        data-index={index}
                         data-amount={product.amount}
                         onClick={(e) => {
-                          this.increaseAmountHandler(e);
+                          this.increaseAmountHandler(e, index);
                         }}
                       >
                         +
@@ -235,9 +235,10 @@ export class Cart extends Component {
                       <button
                         className={classes["amount-btn"]}
                         data-id={product.id}
+                        data-index={index}
                         data-amount={product.amount}
                         onClick={(e) => {
-                          this.decreaseAmountHandler(e);
+                          this.decreaseAmountHandler(e, index);
                         }}
                       >
                         -

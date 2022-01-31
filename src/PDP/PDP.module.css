@@ -5,21 +5,20 @@
 }
 
 .gallery-wrapper {
-  margin-right: auto;
+  margin-right: 6.25rem;
   display: flex;
 }
 
 .all-images-wrapper {
-  width: 15rem;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  align-self: flex-start;
+  display: grid;
+  grid-row-gap: 2rem;
+  grid-column-gap: 2rem;
   margin-right: 2rem;
 }
 
 .image {
-  width: 15rem;
+  height: 5.5rem;
   cursor: pointer;
 }
 
@@ -131,4 +130,5 @@
 .desc-div {
   font-weight: 500;
   color: #1d1f22;
+  line-height: 1.5rem;
 }

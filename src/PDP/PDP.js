@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { gql } from "@apollo/client";
+import DOMPurify from "dompurify";
 import Spinner from "../Spinner/Spinner";
 
 import classes from "./PDP.module.css";
@@ -70,6 +71,48 @@ export class PDP extends Component {
   };
 
   addToCart = () => {
+    // if the product is already in cart and with same attributes, increase amount in cart
+
+    const similarProductInCartIndex = this.props.cart.products.findIndex(
+      (cartProduct) => {
+        return (
+          cartProduct.id === this.state.product.id &&
+          this.state.product.attributesObject.selectedAttributes.every(
+            (selectedAttribute) => {
+              return cartProduct.attributesObject.selectedAttributes.some(
+                (cartSelectedAttribute) => {
+                  return (
+                    cartSelectedAttribute.attribute ===
+                      selectedAttribute.attribute &&
+                    cartSelectedAttribute.selectedValue ===
+                      selectedAttribute.selectedValue
+                  );
+                }
+              );
+            }
+          )
+        );
+      }
+    );
+
+    if (similarProductInCartIndex !== -1) {
+      return this.props.updateGlobalState({
+        cart: {
+          ...this.props.cart,
+          products: [
+            ...this.props.cart.products.slice(0, similarProductInCartIndex),
+            {
+              ...this.props.cart.products[similarProductInCartIndex],
+              amount:
+                this.props.cart.products[similarProductInCartIndex].amount + 1,
+            },
+            ...this.props.cart.products.slice(similarProductInCartIndex + 1),
+          ],
+        },
+      });
+    }
+
+    //if not, add to cart
     this.props.updateGlobalState({
       cart: {
         ...this.props.cart,
@@ -101,23 +144,8 @@ export class PDP extends Component {
     });
   };
 
-  checkIfInCart = () => {
-    if (
-      this.props.cart.products.some((item) => {
-        return item.id === this.state.product.id;
-      })
-    ) {
-      return (
-        <button
-          className={classes["remove-btn"]}
-          onClick={() => {
-            this.removeFromCartHandler();
-          }}
-        >
-          REMOVE FROM CART
-        </button>
-      );
-    } else if (!this.state.product.inStock) {
+  checkIfInStock = () => {
+    if (!this.state.product.inStock) {
       return <p className={classes["not-in-stock-text"]}>OUT OF STOCK</p>;
     }
     return (
@@ -229,7 +257,7 @@ export class PDP extends Component {
               })[0].amount
             }
           </p>
-          {this.checkIfInCart()}
+          {this.checkIfInStock()}
           <div ref={this.myRef} className={classes["desc-div"]}></div>
         </div>
       </main>
@@ -282,7 +310,8 @@ export class PDP extends Component {
       //Here, we use setTimeOut to ensure the state has been updated, and then we set the description.
 
       setTimeout(() => {
-        this.myRef.current.innerHTML = this.state.product.description;
+        const clean = DOMPurify.sanitize(this.state.product.description);
+        this.myRef.current.innerHTML = clean;
       }, 0);
     };
     getProduct();
