@@ -15,6 +15,16 @@ export class App extends Component {
     this.client = new ApolloClient({
       uri: "http://localhost:4000",
       cache: new InMemoryCache(),
+      defaultOptions: {
+        watchQuery: {
+          fetchPolicy: "no-cache",
+          errorPolicy: "ignore",
+        },
+        query: {
+          fetchPolicy: "no-cache",
+          errorPolicy: "all",
+        },
+      },
     });
     this.state = {
       currency: "",
